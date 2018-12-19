@@ -1,0 +1,31 @@
+{
+    "auth": {
+        "id": "xxx",
+        "pass": "xxx"
+    },
+    "rent": 100,
+    "options": [
+        {
+            "name": "冷蔵庫",
+            "amount": 100,
+            "expire": "2019-01-27"
+        }
+    ],
+    "fix": {
+        "0": 0,
+        "1": 0
+    },
+    "notification": {
+        "send": {
+            "address": "xxx",
+            "pass": "xxx"
+        },
+        "receive": {
+            "address": [
+                "xxx",
+                "xxx"
+            ],
+            "subject": "タイトル"
+        }
+    }
+}
