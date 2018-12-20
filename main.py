@@ -13,7 +13,6 @@ import calculator
 import notificator
 
 # TODO: logger
-# TODO: どっちかの負担が確定している場合
 
 def main():
 
@@ -23,9 +22,9 @@ def main():
         conf = json.load(f)
     
     try:
-        billing = calculator.get_amount(conf)
-        print(billing)
-        notificator.send_main(conf, billing)
+        billings = calculator.get_amount(conf)
+        print(billings)
+        notificator.send_main(conf, billings)
     except Exception as e:
         traceback.print_exc()
         exit(1)

@@ -40,13 +40,22 @@ def get_amount(conf):
     billing.update({'options':options_list})
 
     # 楽天カード
+    billings = []
     try:
         rakuten_bill = scraper.get_rakuten_bill(id, password)
-        rakuten_bill = math.ceil(rakuten_bill / 2)
+
+        # 決定費を除く
+        fix_amount = fix['0'] + fix['1']
+        rakuten_bill = math.ceil((rakuten_bill - fix_amount) / 2)
         total_amount += rakuten_bill
-        billing.update({'rakuten':rakuten_bill})
+
+        for idx in range(2):
+
+            billing_copy = billing.copy()
+            billing_copy.update({'rakuten':{"amount":rakuten_bill + fix[str(idx)], 'only_amount':fix[str(idx)]}, 'total_amount':total_amount + fix[str(idx)]})
+            billings.append(billing_copy)
+
     except Exception as e:
         raise
 
-    billing.update({'total_amount':total_amount})
-    return billing
+    return billings
