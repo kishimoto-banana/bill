@@ -7,9 +7,9 @@ def _create_message(from_addr, to_addrs, subject, billing):
     
     current_month = current_datetime = datetime.now().strftime('%m')
     total_amount = billing['total_amount']
-    total = '{:,}'.format(int(total_amount / 2))
-    rent = '{:,}'.format(int(billing['rent'] / 2))
-    rakuten = '{:,}'.format(int(billing['rakuten'] / 2))
+    total = '{:,}'.format(total_amount)
+    rent = '{:,}'.format(billing['rent'])
+    rakuten = '{:,}'.format(billing['rakuten'] / 2)
 
     body = f'''{current_month}月分のソニー銀行への入金金額のお知らせです。
     

@@ -1,5 +1,6 @@
 import scraper
 from datetime import datetime
+import math
 
 def _check_fullpayment(expire, current_datetime):
 
@@ -21,6 +22,7 @@ def get_amount(conf):
     billing = {}
 
     # 家賃
+    rent = math.ceil(rent / 2)
     total_amount = rent
     billing.update({'rent':rent})
 
@@ -31,14 +33,16 @@ def get_amount(conf):
         expire = option['expire']
         expire = datetime.strptime(expire, '%Y-%m-%d')
         if int(expire.strftime('%s')) - int(current_datetime.strftime('%s')) > 0:
-            total_amount += option['amount']
+            amount = math.ceil(option['amount'] / 2)
+            total_amount += amount
             is_fullpayment = _check_fullpayment(expire, current_datetime)
-            options_list.append({'name':option['name'], 'amount':option['amount'], 'is_fullpayment':is_fullpayment})
+            options_list.append({'name':option['name'], 'amount':amount, 'is_fullpayment':is_fullpayment})
     billing.update({'options':options_list})
 
     # 楽天カード
     try:
         rakuten_bill = scraper.get_rakuten_bill(id, password)
+        rakuten_bill = math.ceil(rakuten_bill / 2)
         total_amount += rakuten_bill
         billing.update({'rakuten':rakuten_bill})
     except Exception as e:

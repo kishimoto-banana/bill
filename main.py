@@ -14,7 +14,6 @@ import notificator
 
 # TODO: logger
 # TODO: どっちかの負担が確定している場合
-# TODO: 金額が奇数のとき
 
 def main():
 
@@ -25,6 +24,7 @@ def main():
     
     try:
         billing = calculator.get_amount(conf)
+        print(billing)
         notificator.send_main(conf, billing)
     except Exception as e:
         traceback.print_exc()
