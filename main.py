@@ -12,8 +12,6 @@ import calculator
 import notificator
 from lib import get_bill_logger
 
-# TODO: logger
-
 def main():
 
     # 設定ファイル
