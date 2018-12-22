@@ -13,7 +13,9 @@ def _create_message(from_addr, to_addr, subject, billing):
     rakuten = '{:,}'.format(billing['rakuten']['amount'])
      
 
-    body = f'''{current_month}月分のソニー銀行への入金金額のお知らせです。
+    body = f'''
+    {current_month}月分のソニー銀行への入金金額のお知らせです。
+    26日までに入金をお願いします。
     
     入金金額：{total}円
     
@@ -24,7 +26,8 @@ def _create_message(from_addr, to_addr, subject, billing):
 
     if billing['rakuten']['only_amount'] != 0:
         rakuten_only_amount = '{:,}'.format(billing['rakuten']['only_amount'])
-        body += f'''※あなただけの支払い分が{rakuten_only_amount}円あります。
+        body += f'''
+        ※あなただけの支払い分が{rakuten_only_amount}円あります。
         '''
  
     for option in billing['options']:
