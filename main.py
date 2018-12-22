@@ -1,7 +1,6 @@
 import os
 import sys
 import json
-import traceback
 
 # ルートディレクトリをアプリケーションのホーム(${app_home})に設定
 app_home = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
@@ -11,6 +10,7 @@ sys.path.append(os.path.join(app_home, 'lib'))
 
 import calculator
 import notificator
+from lib import get_bill_logger
 
 # TODO: logger
 
@@ -20,13 +20,19 @@ def main():
     conifg_path = 'conf/settings.json'
     with open(conifg_path) as f:
         conf = json.load(f)
-    
+
+    # loggerの設定
+    logger = get_bill_logger(__name__)
+
     try:
+        logger.info('Start Calculating billing')
         billings = calculator.get_amount(conf)
-        print(billings)
+        logger.info(billings)
+        logger.info('Start notification')
         notificator.send_main(conf, billings)
+        logger.info('Success')
     except Exception as e:
-        traceback.print_exc()
+        logger.exception(f'{e}')
         exit(1)
 
 if __name__ == '__main__':

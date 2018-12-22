@@ -1,6 +1,7 @@
 import scraper
 from datetime import datetime
 import math
+from lib import get_bill_logger
 
 def _check_fullpayment(expire, current_datetime):
 
@@ -12,6 +13,8 @@ def _check_fullpayment(expire, current_datetime):
 
 def get_amount(conf):
 
+    logger = get_bill_logger(__name__)
+
     id = conf['auth']['id']
     password = conf['auth']['pass']
     rent = conf['rent']
@@ -22,11 +25,13 @@ def get_amount(conf):
     billing = {}
 
     # 家賃
+    logger.info('Calculate rent')
     rent = math.ceil(rent / 2)
     total_amount = rent
     billing.update({'rent':rent})
 
     # 変動費
+    logger.info('Calculate optional billing')
     options_list = []
     current_datetime = datetime.now()
     for option in options:
@@ -40,9 +45,12 @@ def get_amount(conf):
     billing.update({'options':options_list})
 
     # 楽天カード
+    logger.info('Calculate rakuten card billing')
     billings = []
     try:
+        logger.info('Scrape rakuten card web')
         rakuten_bill = scraper.get_rakuten_bill(id, password)
+        # rakuten_bill = 1000000
 
         # 決定費を除く
         fix_amount = fix['0'] + fix['1']
@@ -50,7 +58,6 @@ def get_amount(conf):
         total_amount += rakuten_bill
 
         for idx in range(2):
-
             billing_copy = billing.copy()
             billing_copy.update({'rakuten':{"amount":rakuten_bill + fix[str(idx)], 'only_amount':fix[str(idx)]}, 'total_amount':total_amount + fix[str(idx)]})
             billings.append(billing_copy)

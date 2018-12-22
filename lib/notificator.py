@@ -2,6 +2,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.utils import formatdate
 from datetime import datetime
+from lib import get_bill_logger
 
 def _create_message(from_addr, to_addr, subject, billing):
     
@@ -54,11 +55,14 @@ def _send(from_addr, password, to_addrs, msg):
 
 def send_main(conf, billings):
 
+    logger = get_bill_logger(__name__)
     from_addr = conf['notification']['send']['address']
     password = conf['notification']['send']['pass']
     to_addrs = conf['notification']['receive']['address']
     subject = conf['notification']['receive']['subject']
 
     for idx in range(2):
+        logger.info(f'Create message for {idx}')
         msg = _create_message(from_addr, to_addrs[idx], subject, billings[idx])
+        logger.info(f'Send message for {idx}')
         _send(from_addr, password, to_addrs[idx], msg)
