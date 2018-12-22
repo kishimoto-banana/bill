@@ -50,7 +50,6 @@ def get_amount(conf):
     try:
         logger.info('Scrape rakuten card web')
         rakuten_bill = scraper.get_rakuten_bill(id, password)
-        # rakuten_bill = 1000000
 
         # 決定費を除く
         fix_amount = fix['0'] + fix['1']
