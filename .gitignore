@@ -120,5 +120,5 @@ dmypy.json
 .vscode/
 
 # specific files
-setting.json
+settings.json
 billing.log
