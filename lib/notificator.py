@@ -1,12 +1,20 @@
-import smtplib
-from email.mime.text import MIMEText
-from email.utils import formatdate
+import requests
+import json
 from datetime import datetime
 from lib import get_bill_logger
 
-def _create_message(from_addr, to_addr, subject, billing):
+def _create_message_common():
     
     current_month = current_datetime = datetime.now().strftime('%m')
+    text = f'''
+    {current_month}月分のソニー銀行への入金金額のお知らせだよ。
+    26日までに入金してね。
+    '''
+
+    return text
+
+def _create_message(billing, name):
+    
     total_amount = billing['total_amount']
     total = '{:,}'.format(total_amount)
     rent = '{:,}'.format(billing['rent'])
@@ -14,9 +22,7 @@ def _create_message(from_addr, to_addr, subject, billing):
      
 
     body = f'''
-    {current_month}月分のソニー銀行への入金金額のお知らせです。
-    26日までに入金をお願いします。
-    
+    <{name}>
     入金金額：{total}円
     
     内訳）
@@ -27,7 +33,7 @@ def _create_message(from_addr, to_addr, subject, billing):
     if billing['rakuten']['only_amount'] != 0:
         rakuten_only_amount = '{:,}'.format(billing['rakuten']['only_amount'])
         body += f'''
-        ※あなただけの支払い分が{rakuten_only_amount}円あります。
+        ※あなただけの支払い分が{rakuten_only_amount}円あるよ。
         '''
  
     for option in billing['options']:
@@ -36,36 +42,37 @@ def _create_message(from_addr, to_addr, subject, billing):
         body += f'''{name}：{amount}円
         '''
         if option['is_fullpayment']:
-            body += f'''{name}は今月で支払い完了です。
+            body += f'''{name}は今月で支払い完了だよー。
             '''
 
-    msg = MIMEText(body)
-    msg['Subject'] = subject
-    msg['From'] = from_addr
-    msg['To'] = to_addr
-    msg['Date'] = formatdate()
-    return msg
+    return body
 
-def _send(from_addr, password, to_addrs, msg):
-    smtpobj = smtplib.SMTP('smtp.gmail.com', 587)
-    smtpobj.ehlo()
-    smtpobj.starttls()
-    smtpobj.ehlo()
-    smtpobj.login(from_addr, password)
-    smtpobj.sendmail(from_addr, to_addrs, msg.as_string())
-    smtpobj.close()
+def _post_slack(post_url, name, text, icon):
+
+    requests.post(
+        post_url,
+        data=json.dumps(
+            {"text": text,
+             "username": name,
+             "icon_emoji": icon,
+             'link_names': 1}))
 
 
 def send_main(conf, billings):
 
     logger = get_bill_logger(__name__)
-    from_addr = conf['notification']['send']['address']
-    password = conf['notification']['send']['pass']
-    to_addrs = conf['notification']['receive']['address']
-    subject = conf['notification']['receive']['subject']
+    post_url = conf['notification']['post_url']
+    appname = conf['notification']['appname']
+    icon_emoji = conf['notification']['icon_emoji']
+    names = conf['notification']['name']
+
+    logger.info(f'Create message for common')
+    msg = _create_message_common()
+    logger.info(f'Send message for common')
+    _post_slack(post_url, appname, msg, icon_emoji)
 
     for idx in range(2):
         logger.info(f'Create message for {idx}')
-        msg = _create_message(from_addr, to_addrs[idx], subject, billings[idx])
+        msg = _create_message(billings[idx], names[idx])
         logger.info(f'Send message for {idx}')
-        _send(from_addr, password, to_addrs[idx], msg)
+        _post_slack(post_url, appname, msg, icon_emoji)
