@@ -14,6 +14,28 @@ def _check_fullpayment(expire, current_datetime):
     return is_fullpayment
 
 
+def _get_option_billing(options):
+
+    options_list = []
+    option_total_amount = 0
+    current_datetime = datetime.now()
+    for option in options:
+        expire = option['expire']
+        expire = datetime.strptime(expire, '%Y-%m-%d')
+        if int(expire.strftime('%s')) - int(
+                current_datetime.strftime('%s')) > 0:
+            option_amount = math.ceil(option['amount'] / 2)
+            is_fullpayment = _check_fullpayment(expire, current_datetime)
+            options_list.append({
+                'name': option['name'],
+                'amount': option_amount,
+                'is_fullpayment': is_fullpayment
+            })
+            option_total_amount += option_amount
+
+    return options_list, option_total_amount
+
+
 def get_amount(conf):
 
     logger = get_bill_logger(__name__)
@@ -24,58 +46,32 @@ def get_amount(conf):
     options = conf['options']
     fix = conf['fix']
 
-    # 請求情報の辞書
-    billing = {}
-
-    # 家賃
-    logger.info('Calculate rent')
-    rent = math.ceil(rent / 2)
-    total_amount = rent
-    billing.update({'rent': rent})
-
-    # 変動費
-    logger.info('Calculate optional billing')
-    options_list = []
-    current_datetime = datetime.now()
-    for option in options:
-        expire = option['expire']
-        expire = datetime.strptime(expire, '%Y-%m-%d')
-        if int(expire.strftime('%s')) - int(
-                current_datetime.strftime('%s')) > 0:
-            amount = math.ceil(option['amount'] / 2)
-            total_amount += amount
-            is_fullpayment = _check_fullpayment(expire, current_datetime)
-            options_list.append({
-                'name': option['name'],
-                'amount': amount,
-                'is_fullpayment': is_fullpayment
-            })
-    billing.update({'options': options_list})
-
-    # 楽天カード
+    # 楽天カードの請求額スクレイピング
     logger.info('Calculate rakuten card billing')
-    billings = []
     try:
         logger.info('Scrape rakuten card web')
         rakuten_bill = scraper.get_rakuten_bill(id, password)
-
-        # 決定費を除く
-        fix_amount = fix['0'] + fix['1']
-        rakuten_bill = math.ceil((rakuten_bill - fix_amount) / 2)
-        total_amount += rakuten_bill
-
-        for idx in range(2):
-            billing_copy = billing.copy()
-            billing_copy.update({
-                'rakuten': {
-                    "amount": rakuten_bill + fix[str(idx)],
-                    'only_amount': fix[str(idx)]
-                },
-                'total_amount': total_amount + fix[str(idx)]
-            })
-            billings.append(billing_copy)
-
     except Exception as e:
-        raise
+        raise e
+    # 決定費を除く
+    rakuten_bill_ex_fix = math.ceil((rakuten_bill - (fix['m'] + fix['f'])) / 2)
+
+    logger.info('Calculate optional billing')
+    options_list, option_total_amount = _get_option_billing(options)
+
+    billings = []
+    for target in ['m', 'f']:
+        total_amount = rent[target] + rakuten_bill_ex_fix + fix[
+            target] + option_total_amount
+        billing_info = {
+            'rent': rent[target],
+            'rakuten': {
+                "amount": rakuten_bill_ex_fix + fix[target],
+                'your_only_amount': fix[target]
+            },
+            'options': options_list,
+            'total_amount': total_amount
+        }
+        billings.append(billing_info)
 
     return billings

@@ -6,6 +6,7 @@ from lib import get_bill_logger
 def get_rakuten_bill(id_, password_):
 
     logger = get_bill_logger(__name__)
+    logger.info('Scrape rakuten card web')
 
     try:
         # headless chromeの設定

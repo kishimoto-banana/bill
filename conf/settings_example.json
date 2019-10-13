@@ -1,31 +1,27 @@
 {
     "auth": {
-        "id": "xxx",
-        "pass": "xxx"
+        "id": "hoge",
+        "pass": "hoge"
     },
-    "rent": 100,
+    "rent": {
+        "m": 100,
+        "f": 200
+    },
     "options": [
         {
-            "name": "冷蔵庫",
-            "amount": 100,
+            "name": "何かすごいもの",
+            "amount": 1000,
             "expire": "2019-01-27"
         }
     ],
     "fix": {
-        "0": 0,
-        "1": 0
+        "m": 100,
+        "f": 0
     },
     "notification": {
-        "send": {
-            "address": "xxx",
-            "pass": "xxx"
-        },
-        "receive": {
-            "address": [
-                "xxx",
-                "xxx"
-            ],
-            "subject": "タイトル"
-        }
+        "post_url": "huga",
+        "appname": "piyo",
+        "icon_emoji": ":piyopiyp:",
+        "name": ["@hoge", "@huga"]
     }
 }

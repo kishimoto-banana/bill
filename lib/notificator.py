@@ -31,8 +31,9 @@ def _create_message(billing, name):
     楽天カード:{rakuten}円
     '''
 
-    if billing['rakuten']['only_amount'] != 0:
-        rakuten_only_amount = '{:,}'.format(billing['rakuten']['only_amount'])
+    if billing['rakuten']['your_only_amount'] != 0:
+        rakuten_only_amount = '{:,}'.format(
+            billing['rakuten']['your_only_amount'])
         body += f'''
         ※あなただけの支払い分が{rakuten_only_amount}円あるよ。
         '''
