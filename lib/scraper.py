@@ -1,6 +1,7 @@
-from selenium import webdriver
 import time
+from selenium import webdriver
 from lib import get_bill_logger
+
 
 def get_rakuten_bill(id_, password_):
 
@@ -11,7 +12,8 @@ def get_rakuten_bill(id_, password_):
         logger.info('Setting headless chrome')
         options = webdriver.ChromeOptions()
         options.add_argument('--headless')
-        driver = webdriver.Chrome(options=options, executable_path='driver/chromedriver')
+        driver = webdriver.Chrome(options=options,
+                                  executable_path='driver/chromedriver')
 
         # トップページにアクセス
         logger.info('Get request for rakuten card')
@@ -24,19 +26,19 @@ def get_rakuten_bill(id_, password_):
         id.send_keys(id_)
         password = driver.find_element_by_id('p')
         password.send_keys(password_)
-        driver.find_element_by_xpath('//*[@id="indexForm"]/fieldset/button').submit()
+        driver.find_element_by_xpath(
+            '//*[@id="indexForm"]/fieldset/button').submit()
         time.sleep(1)
 
         # 金額の取得
         logger.info('Extract billing')
-        billing = driver.find_element_by_xpath('//*[@id="js-bill-mask"]/em').text
-    
+        billing = driver.find_element_by_xpath(
+            '//*[@id="js-bill-mask"]/em').text
+
         return int(billing.replace('円', '').replace(',', ''))
-    except Exception as e:   
+    except Exception as e:
         raise
     finally:
         # セッションの終了
         logger.info('Quit session')
         driver.quit()
-
-    

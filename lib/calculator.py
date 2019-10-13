@@ -1,15 +1,18 @@
-import scraper
-from datetime import datetime
 import math
+from datetime import datetime
+import scraper
 from lib import get_bill_logger
+
 
 def _check_fullpayment(expire, current_datetime):
 
     is_fullpayment = False
-    if (expire.strftime('%Y') == current_datetime.strftime('%Y')) and (expire.strftime('%m') == current_datetime.strftime('%m')):
+    if (expire.strftime('%Y') == current_datetime.strftime('%Y')) and (
+            expire.strftime('%m') == current_datetime.strftime('%m')):
         is_fullpayment = True
 
     return is_fullpayment
+
 
 def get_amount(conf):
 
@@ -28,7 +31,7 @@ def get_amount(conf):
     logger.info('Calculate rent')
     rent = math.ceil(rent / 2)
     total_amount = rent
-    billing.update({'rent':rent})
+    billing.update({'rent': rent})
 
     # 変動費
     logger.info('Calculate optional billing')
@@ -37,12 +40,17 @@ def get_amount(conf):
     for option in options:
         expire = option['expire']
         expire = datetime.strptime(expire, '%Y-%m-%d')
-        if int(expire.strftime('%s')) - int(current_datetime.strftime('%s')) > 0:
+        if int(expire.strftime('%s')) - int(
+                current_datetime.strftime('%s')) > 0:
             amount = math.ceil(option['amount'] / 2)
             total_amount += amount
             is_fullpayment = _check_fullpayment(expire, current_datetime)
-            options_list.append({'name':option['name'], 'amount':amount, 'is_fullpayment':is_fullpayment})
-    billing.update({'options':options_list})
+            options_list.append({
+                'name': option['name'],
+                'amount': amount,
+                'is_fullpayment': is_fullpayment
+            })
+    billing.update({'options': options_list})
 
     # 楽天カード
     logger.info('Calculate rakuten card billing')
@@ -58,7 +66,13 @@ def get_amount(conf):
 
         for idx in range(2):
             billing_copy = billing.copy()
-            billing_copy.update({'rakuten':{"amount":rakuten_bill + fix[str(idx)], 'only_amount':fix[str(idx)]}, 'total_amount':total_amount + fix[str(idx)]})
+            billing_copy.update({
+                'rakuten': {
+                    "amount": rakuten_bill + fix[str(idx)],
+                    'only_amount': fix[str(idx)]
+                },
+                'total_amount': total_amount + fix[str(idx)]
+            })
             billings.append(billing_copy)
 
     except Exception as e:

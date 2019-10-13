@@ -1,10 +1,11 @@
-import requests
 import json
+import requests
 from datetime import datetime
 from lib import get_bill_logger
 
+
 def _create_message_common():
-    
+
     current_month = current_datetime = datetime.now().strftime('%m')
     text = f'''
     {current_month}月分のソニー銀行への入金金額のお知らせだよ。
@@ -13,13 +14,13 @@ def _create_message_common():
 
     return text
 
+
 def _create_message(billing, name):
-    
+
     total_amount = billing['total_amount']
     total = '{:,}'.format(total_amount)
     rent = '{:,}'.format(billing['rent'])
     rakuten = '{:,}'.format(billing['rakuten']['amount'])
-     
 
     body = f'''
     <{name}>
@@ -35,7 +36,7 @@ def _create_message(billing, name):
         body += f'''
         ※あなただけの支払い分が{rakuten_only_amount}円あるよ。
         '''
- 
+
     for option in billing['options']:
         name = option['name']
         amount = '{:,}'.format(option['amount'])
@@ -47,15 +48,16 @@ def _create_message(billing, name):
 
     return body
 
+
 def _post_slack(post_url, name, text, icon):
 
-    requests.post(
-        post_url,
-        data=json.dumps(
-            {"text": text,
-             "username": name,
-             "icon_emoji": icon,
-             'link_names': 1}))
+    requests.post(post_url,
+                  data=json.dumps({
+                      "text": text,
+                      "username": name,
+                      "icon_emoji": icon,
+                      'link_names': 1
+                  }))
 
 
 def send_main(conf, billings):

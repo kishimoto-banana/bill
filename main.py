@@ -12,6 +12,7 @@ import calculator
 import notificator
 from lib import get_bill_logger
 
+
 def main():
 
     # 設定ファイル
@@ -27,11 +28,12 @@ def main():
         billings = calculator.get_amount(conf)
         logger.info(billings)
         logger.info('Start notification')
-        notificator.send_main(conf, billings)
+        # notificator.send_main(conf, billings)
         logger.info('Success')
     except Exception as e:
         logger.exception(f'{e}')
         exit(1)
+
 
 if __name__ == '__main__':
     main()
