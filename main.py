@@ -16,8 +16,8 @@ from lib import get_bill_logger
 def main():
 
     # 設定ファイル
-    conifg_path = 'conf/settings.json'
-    with open(conifg_path) as f:
+    config_path = 'conf/settings.json'
+    with open(config_path) as f:
         conf = json.load(f)
 
     # loggerの設定
