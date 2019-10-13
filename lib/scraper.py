@@ -13,6 +13,8 @@ def get_rakuten_bill(id_, password_):
         logger.info('Setting headless chrome')
         options = webdriver.ChromeOptions()
         options.add_argument('--headless')
+        options.add_argument('--no-sandbox')
+        options.add_argument('--disable-dev-shm-usage')
         driver = webdriver.Chrome(options=options,
                                   executable_path='driver/chromedriver')
 
